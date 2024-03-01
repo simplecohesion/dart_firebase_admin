@@ -275,8 +275,6 @@ class TokenProvider {
 
   /// The ID of the tenant the user belongs to, if available.
   String? tenant;
-  // TODO allow any key
-  // [key: string]: any;
 }
 
 /// Interface representing a decoded Firebase ID token, returned from the
@@ -301,7 +299,8 @@ class DecodedIdToken {
     required this.picture,
     required this.sub,
     required this.uid,
-  });
+    required Map<String, Object?> map,
+  }) : _allKeys = map;
 
   @internal
   factory DecodedIdToken.fromMap(Map<String, Object?> map) {
@@ -326,6 +325,7 @@ class DecodedIdToken {
       picture: map['picture'] as String?,
       sub: map['sub']! as String,
       uid: map['uid']! as String,
+      map: map,
     );
   }
 
@@ -400,11 +400,12 @@ class DecodedIdToken {
   /// convenience, and is set as the value of the [`sub`](#sub) property.
   String uid;
 
-  /**
-   * Other arbitrary claims included in the ID token.
-   */
-  // TODO allow any key
-  // [key: string]: any;
+  ///
+  /// Other arbitrary claims included in the ID token.
+  ///
+  final Map<String, Object?> _allKeys;
+
+  Object? operator [](String key) => _allKeys[key];
 }
 
 /// User facing token information related to the Firebase ID token.
