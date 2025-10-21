@@ -213,7 +213,7 @@ final class DocumentReference<T> implements _Serializable {
   /// });
   /// ```
   Future<List<CollectionReference<DocumentData>>> listCollections() {
-    return this.firestore._client.v1((a) async {
+    return firestore._client.v1((a) async {
       final request = firestore1.ListCollectionIdsRequest(
         // Setting `pageSize` to an arbitrarily large value lets the backend cap
         // the page size (currently to 300). Note that the backend rejects
@@ -223,7 +223,7 @@ final class DocumentReference<T> implements _Serializable {
 
       final result = await a.projects.databases.documents.listCollectionIds(
         request,
-        this._formattedName,
+        _formattedName,
       );
 
       final ids = result.collectionIds ?? [];
@@ -277,7 +277,7 @@ final class DocumentReference<T> implements _Serializable {
   /// });
   /// ```
   Future<WriteResult> create(T data) async {
-    final writeBatch = WriteBatch._(this.firestore)..create<T>(this, data);
+    final writeBatch = WriteBatch._(firestore)..create<T>(this, data);
 
     final results = await writeBatch.commit();
     return results.single;
@@ -288,7 +288,7 @@ final class DocumentReference<T> implements _Serializable {
   /// A delete for a non-existing document is treated as a success (unless
   /// [precondition] is specified).
   Future<WriteResult> delete([Precondition? precondition]) async {
-    final writeBatch = WriteBatch._(this.firestore)
+    final writeBatch = WriteBatch._(firestore)
       ..delete(this, precondition: precondition);
 
     final results = await writeBatch.commit();
@@ -298,7 +298,7 @@ final class DocumentReference<T> implements _Serializable {
   /// Writes to the document referred to by this DocumentReference. If the
   /// document does not yet exist, it will be created.
   Future<WriteResult> set(T data) async {
-    final writeBatch = WriteBatch._(this.firestore)..set(this, data);
+    final writeBatch = WriteBatch._(firestore)..set(this, data);
 
     final results = await writeBatch.commit();
     return results.single;
@@ -318,7 +318,7 @@ final class DocumentReference<T> implements _Serializable {
     Map<Object?, Object?> data, [
     Precondition? precondition,
   ]) async {
-    final writeBatch = WriteBatch._(this.firestore)
+    final writeBatch = WriteBatch._(firestore)
       ..update(
         this,
         {
@@ -835,7 +835,7 @@ base class Query<T> {
       }
 
       _validateQueryValue('$i', fieldValue);
-      cursor.values.add(this.firestore._serializer.encodeValue(fieldValue)!);
+      cursor.values.add(firestore._serializer.encodeValue(fieldValue)!);
     }
 
     return cursor;
@@ -1210,8 +1210,8 @@ base class Query<T> {
 
     // For limitToLast queries, the structured query has to be translated to a version with
     // reversed ordered, and flipped startAt/endAt to work properly.
-    if (this._queryOptions.limitType == LimitType.last) {
-      if (!this._queryOptions.hasFieldOrders) {
+    if (_queryOptions.limitType == LimitType.last) {
+      if (!_queryOptions.hasFieldOrders) {
         throw ArgumentError(
           'limitToLast() queries require specifying at least one orderBy() clause.',
         );
@@ -1270,17 +1270,17 @@ base class Query<T> {
     // Kindless queries select all descendant documents, so we remove the
     // collectionId field.
     if (!_queryOptions.kindless) {
-      structuredQuery.from![0].collectionId = this._queryOptions.collectionId;
+      structuredQuery.from![0].collectionId = _queryOptions.collectionId;
     }
 
     if (_queryOptions.filters.isNotEmpty) {
       structuredQuery.where = _CompositeFilterInternal(
-        filters: this._queryOptions.filters,
+        filters: _queryOptions.filters,
         op: _CompositeOperator.and,
       ).toProto();
     }
 
-    if (this._queryOptions.hasFieldOrders) {
+    if (_queryOptions.hasFieldOrders) {
       structuredQuery.orderBy =
           _queryOptions.fieldOrders.map((o) => o._toProto()).toList();
     }
